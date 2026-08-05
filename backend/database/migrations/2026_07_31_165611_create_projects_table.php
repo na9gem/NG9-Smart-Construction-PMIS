@@ -30,20 +30,37 @@ return new class extends Migration
     // งบประมาณ
     $table->decimal('budget',15,2)->default(0);
 
+    // ข้อมูลสัญญา
+    $table->string('contract_number')->nullable();
+
+    // วงเงินตามสัญญา
+    $table->decimal('contract_amount',15,2)->default(0);
+
+    // ความก้าวหน้า (%)
+    $table->decimal('progress_percent',5,2)->default(0);
+
     // สถานะ
     $table->enum('status',[
-        'Planning',
-        'Construction',
-        'Completed',
-        'Suspended'
-    ])->default('Planning');
+    'Draft',
+    'Tender',
+    'Construction',
+    'Completed',
+    'OnHold',
+    'Cancelled'
+])->default('Draft');
 
     // ระยะเวลา
-    $table->date('start_date')->nullable();
-    $table->date('end_date')->nullable();
+    $table->date('planned_start_date')->nullable();
+    $table->date('planned_finish_date')->nullable();
+
+    // วันที่แล้วเสร็จจริง
+     $table->date('actual_finish_date')->nullable();
 
     // ผู้รับผิดชอบ
-    $table->foreignId('created_by')->nullable();
+    $table->foreignId('created_by')
+      ->nullable()
+      ->constrained('users')
+      ->nullOnDelete();
 
     $table->timestamps();
 });

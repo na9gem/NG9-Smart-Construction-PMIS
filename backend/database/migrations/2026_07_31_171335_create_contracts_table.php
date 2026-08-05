@@ -24,6 +24,10 @@ return new class extends Migration
     $table->string('contract_no')->unique();
     $table->date('contract_date');
 
+    // ผู้ลงนาม
+    $table->string('employer')->nullable();
+    $table->string('contractor_signer')->nullable();
+
     // มูลค่าสัญญา
     $table->decimal('contract_amount',15,2);
 
@@ -32,6 +36,11 @@ return new class extends Migration
 
     $table->date('start_date');
     $table->date('finish_date');
+
+    // ขยายสัญญา
+    $table->date('extended_finish_date')->nullable();
+    $table->integer('extension_days')->default(0);
+    $table->text('extension_reason')->nullable();
 
     // เงินประกัน
     $table->decimal('performance_bond',15,2)->nullable();
@@ -47,11 +56,13 @@ return new class extends Migration
 
     // สถานะสัญญา
     $table->enum('status',[
-        'Draft',
-        'Active',
-        'Completed',
-        'Terminated'
-    ])->default('Draft');
+    'Draft',
+    'Signed',
+    'Active',
+    'Completed',
+    'Expired',
+    'Terminated'
+])->default('Draft');
 
     $table->timestamps();
 });
