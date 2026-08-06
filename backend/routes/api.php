@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ContractController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\ProgressReportController;
+use App\Http\Controllers\Api\InspectionController;
 
 
 
@@ -20,6 +21,8 @@ Route::get(
 );
 
 Route::apiResource('progress-reports', ProgressReportController::class);
+Route::apiResource('inspections', InspectionController::class);
+
 
 
 
