@@ -4,7 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ContractController;
 use App\Http\Controllers\Api\DocumentController;
+
 use App\Http\Controllers\Api\ProgressReportController;
+use App\Http\Controllers\Api\ProgressPlanController;
+use App\Http\Controllers\Api\ProgressPlanItemController;
 use App\Http\Controllers\Api\InspectionController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\AuthController;
@@ -23,19 +26,44 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware('permission:dashboard.view');
 
-    Route::apiResource('projects', ProjectController::class);
-    Route::apiResource('contracts', ContractController::class);
-    Route::apiResource('documents', DocumentController::class);
-    Route::apiResource('progress-reports', ProgressReportController::class);
-    Route::apiResource('inspections', InspectionController::class);
+Route::get(
+    '/dashboard/projects/{project}/s-curve',
+    [DashboardController::class, 'sCurve']
+)->middleware('permission:dashboard.view');
+
+Route::apiResource('projects', ProjectController::class)
+    ->middlewareFor(['index', 'show'], 'permission:project.view')
+    ->middlewareFor('store', 'permission:project.create')
+    ->middlewareFor('update', 'permission:project.update')
+    ->middlewareFor('destroy', 'permission:project.delete');
+Route::apiResource('contracts', ContractController::class)
+    ->middleware('permission:contract.manage');
+Route::apiResource('documents', DocumentController::class)
+    ->middleware('permission:document.manage');
+Route::apiResource('progress-reports', ProgressReportController::class)
+    ->middleware('permission:progress.manage');
+Route::post(
+    'progress-reports/{progressReport}/approve',
+    [ProgressReportController::class, 'approve']
+)->middleware('permission:progress.manage');
+
+Route::apiResource('progress-plans', ProgressPlanController::class)
+    ->middleware('permission:progress.manage');
+Route::post(
+    'progress-plans/{progressPlan}/items',
+    [ProgressPlanItemController::class, 'store']
+)->middleware('permission:progress.manage');
+
+
+Route::apiResource('inspections', InspectionController::class)
+    ->middleware('permission:inspection.manage');
     Route::apiResource('media', MediaController::class);
     
 
-    Route::get(
+Route::get(
     'documents/{document}/download',
     [DocumentController::class, 'download']
-);
-
+)->middleware('permission:document.manage');
 
 
 });

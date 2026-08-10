@@ -66,6 +66,31 @@ class ProgressReportController extends Controller
     }
 
     /**
+ * Approve the specified Progress Report.
+ */
+public function approve(
+    ProgressReport $progressReport
+): JsonResponse {
+
+    if ($progressReport->status !== 'Submitted') {
+        return response()->json([
+            'success' => false,
+            'message' => 'สามารถอนุมัติได้เฉพาะ Progress Report ที่มีสถานะ Submitted เท่านั้น'
+        ], 422);
+    }
+
+    $progressReport->update([
+        'status' => 'Approved',
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Progress Report Approved Successfully',
+        'data' => $progressReport->fresh(),
+    ]);
+}
+
+    /**
      * Remove the specified resource.
      */
     public function destroy(

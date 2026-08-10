@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
     health: '/up',
 )
+
     ->withMiddleware(function (Middleware $middleware): void {
 
     $middleware->redirectGuestsTo(
@@ -22,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
             ? null
             : route('login')
     );
+
+    $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
 
     $middleware->alias([
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,

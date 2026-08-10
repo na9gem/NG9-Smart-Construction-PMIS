@@ -36,8 +36,12 @@ class DocumentRequest extends FormRequest
 
         'document_date' => 'nullable|date',
 
-        'document_file' => 'required|file|max:51200|mimes:pdf,jpg,jpeg,png,xlsx,xls,doc,docx',
-
+'document_file' => [
+    $this->isMethod('post') ? 'required' : 'nullable',
+    'file',
+    'max:51200',
+    'mimes:pdf,jpg,jpeg,png,xlsx,xls,doc,docx',
+],
         'revision' => 'nullable|string|max:20',
 
         'remark' => 'nullable|string',

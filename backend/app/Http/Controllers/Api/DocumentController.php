@@ -121,8 +121,12 @@ public function download(Document $document)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Document $document): JsonResponse
+public function destroy(Document $document): JsonResponse
 {
+    if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+        Storage::disk('public')->delete($document->file_path);
+    }
+
     $document->delete();
 
     return response()->json([
@@ -130,5 +134,4 @@ public function download(Document $document)
         'message' => 'Document Deleted Successfully'
     ]);
 }
-
 }
