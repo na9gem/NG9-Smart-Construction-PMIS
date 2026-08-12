@@ -153,7 +153,7 @@ Database ปัจจุบันรองรับ Version ด้วย `plan_t
 
 # PD-004 — S-Curve / Cumulative Progress Calculation
 
-**Status:** PROPOSED
+**Status:** APPROVED
 
 ## Existing Evidence
 
@@ -182,7 +182,45 @@ Progress Plan Item
 ต้องกำหนดสูตรการคำนวณอย่างเป็นทางการก่อน Lock
 
 ---
+## Decision
 
+NG9 V1 ใช้ระบบคำนวณ Planned S-Curve จาก Activity Weight และ Progress Plan Item โดยให้ระบบเป็นผู้คำนวณค่าที่เกี่ยวข้องกับ Cumulative Progress
+
+## Calculation Rules
+
+1. `Activity.weight` เป็น Source of Truth ของน้ำหนัก Activity ใน Progress Plan
+2. น้ำหนัก Activity ของ Progress Plan เดียวกันต้องรวมกันเป็น 100%
+3. `planned_percent` หมายถึง Planned Incremental Progress ของ Activity ในแต่ละ `plan_date`
+4. Planned Weighted Progress ของแต่ละรายการคำนวณจาก:
+
+   `Activity.weight × planned_percent ÷ 100`
+
+5. Daily Planned Progress คำนวณจากผลรวม Planned Weighted Progress ของรายการที่มี `plan_date` เดียวกัน
+6. Cumulative Planned Progress คำนวณจากผลรวม Daily Planned Progress ตามลำดับวันที่
+7. Planned S-Curve ใช้ Cumulative Planned Progress เป็นค่าหลัก
+8. `planned_weight` ไม่ควรเป็นค่าที่ผู้ใช้กำหนดอย่างอิสระ และในขั้น Development ให้ระบบคำนวณจาก `Activity.weight`
+9. `cumulative_percent` ไม่ควรเป็นค่าที่ผู้ใช้กำหนดอย่างอิสระ และในขั้น Development ให้ระบบคำนวณจาก Planned Progress
+10. Actual S-Curve ใช้เฉพาะ Progress Report ที่มีสถานะ `Approved` และใช้ `progress_percent` ตาม `report_date`
+11. Actual Current Progress ใช้ Progress Report ที่ `Approved` ล่าสุด
+12. Planned และ Actual ต้องแยกจากกันอย่างชัดเจนเพื่อรองรับการตรวจสอบย้อนหลัง
+
+## Current Implementation Evidence
+
+ปัจจุบัน `ProgressCalculationService` คำนวณ Planned S-Curve จาก:
+
+`planned_weight × planned_percent ÷ 100`
+
+และคำนวณ Cumulative Progress จากผลรวมตามวันที่
+
+อย่างไรก็ตาม ปัจจุบัน `planned_weight` สามารถรับค่าจากผู้ใช้ และ `cumulative_percent` สามารถรับค่าได้จาก Request
+
+ดังนั้นการทำให้ `Activity.weight` เป็น Source of Truth และให้ระบบคำนวณค่าดังกล่าว จะดำเนินการในขั้น Design/Development ถัดไป
+
+## Implementation Status
+
+Decision ได้รับการอนุมัติแล้ว
+
+ยังไม่มีการแก้ไข Database หรือ Application Code ตาม Decision นี้
 # PD-005 — Codespaces Cost Control
 
 **Status:** LOCKED
