@@ -37,19 +37,6 @@ class ProgressPlanItemRequest extends FormRequest
                 'max:100',
             ],
 
-            'planned_weight' => [
-                'required',
-                'numeric',
-                'min:0',
-                'max:100',
-            ],
-
-            'cumulative_percent' => [
-                'nullable',
-                'numeric',
-                'min:0',
-                'max:100',
-            ],
         ];
     }
 
@@ -78,11 +65,7 @@ class ProgressPlanItemRequest extends FormRequest
             'planned_percent.max' =>
                 'เปอร์เซ็นต์ตามแผนต้องไม่เกิน 100',
 
-            'planned_weight.required' =>
-                'กรุณาระบุน้ำหนักงาน',
 
-            'planned_weight.max' =>
-                'น้ำหนักงานต้องไม่เกิน 100',
         ];
     }
 }

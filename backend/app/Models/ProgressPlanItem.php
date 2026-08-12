@@ -12,15 +12,11 @@ class ProgressPlanItem extends Model
         'activity_id',
         'plan_date',
         'planned_percent',
-        'planned_weight',
-        'cumulative_percent',
     ];
 
     protected $casts = [
         'plan_date' => 'date',
         'planned_percent' => 'decimal:2',
-        'planned_weight' => 'decimal:2',
-        'cumulative_percent' => 'decimal:2',
     ];
 
     public function progressPlan(): BelongsTo

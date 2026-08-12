@@ -19,7 +19,7 @@ class ProgressCalculationService
                 $query->where('project_id', $project->id);
             })
             ->where('is_baseline', true)
-            ->with('items')
+            ->with('items.activity')
             ->orderByDesc('effective_date')
             ->first();
 
@@ -111,7 +111,7 @@ class ProgressCalculationService
             })
             ->map(function (Collection $dateItems) {
                 return $dateItems->sum(function ($item) {
-                    return ((float) $item->planned_weight)
+                    return ((float) $item->activity->weight)
                         * ((float) $item->planned_percent)
                         / 100;
                 });

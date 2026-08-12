@@ -26,9 +26,7 @@ return new class extends Migration
 
     $table->decimal('planned_percent', 8, 2)->default(0);
 
-    $table->decimal('planned_weight', 8, 2)->default(0);
 
-    $table->decimal('cumulative_percent', 8, 2)->default(0);
 
     $table->timestamps();
 
