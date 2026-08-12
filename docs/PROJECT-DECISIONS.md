@@ -46,7 +46,7 @@ Business Decision ถูกกำหนดแล้ว แต่ Database Enforc
 
 # PD-002 — RBAC Source of Truth
 
-**Status:** PROPOSED
+**Status:** APPROVED
 
 ## Proposal
 
