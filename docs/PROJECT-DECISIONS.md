@@ -84,7 +84,7 @@ Authorization หลักควรใช้ Spatie Role / Permission
 
 # PD-003 — Progress Plan Versioning
 
-**Status:** PROPOSED
+**Status:** APPROVED
 
 ## Existing Evidence
 
@@ -117,6 +117,39 @@ Baseline เดิมต้องสามารถตรวจสอบย้�
 - Baseline Change Rule
 
 ---
+## Decision
+
+Progress Plan ของแต่ละ Contract สามารถมีได้หลาย Version
+
+รูปแบบ Versioning ของ NG9 V1:
+
+Baseline / 01
+Revision / 02
+Revision / 03
+...
+
+## Business Rules
+
+1. Progress Plan ต้องผูกกับ Contract
+2. แต่ละ Plan ต้องระบุ `plan_type` และ `version`
+3. `contract_id + plan_type + version` ต้องไม่ซ้ำกัน
+4. หนึ่ง Contract มี Active Baseline ได้เพียงหนึ่งชุด
+5. Baseline ใช้เป็นแผนอ้างอิงหลักของ Contract
+6. เมื่อมีการเปลี่ยนแผนที่ต้องเก็บประวัติ ให้สร้าง Progress Plan Version ใหม่
+7. ไม่แก้ทับข้อมูลของ Plan Version ที่ใช้เป็นประวัติ
+8. Progress Plan Item ต้องผูกกับ Progress Plan Version โดยตรง
+9. Baseline หรือ Revision เดิมต้องสามารถตรวจสอบย้อนหลังได้
+10. การเปลี่ยน Baseline ต้องไม่ทำให้ข้อมูล Baseline เดิมสูญหาย
+
+## Implementation Status
+
+Database ปัจจุบันรองรับ Version ด้วย `plan_type + version` และมี Unique Constraint ที่:
+
+`contract_id + plan_type + version`
+
+อย่างไรก็ตาม Database ยังไม่ได้ enforce ว่าหนึ่ง Contract มี Active Baseline ได้เพียงหนึ่งชุด
+
+การปรับ Database Enforcement จะทำในขั้น Design/Development ถัดไป
 
 # PD-004 — S-Curve / Cumulative Progress Calculation
 
