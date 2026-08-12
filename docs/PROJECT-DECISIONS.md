@@ -221,6 +221,61 @@ NG9 V1 ใช้ระบบคำนวณ Planned S-Curve จาก Activity W
 Decision ได้รับการอนุมัติแล้ว
 
 ยังไม่มีการแก้ไข Database หรือ Application Code ตาม Decision นี้
+## Implementation Design Decision
+
+**Selected Option:** B — Derived Calculation
+
+NG9 V1 จะไม่จัดเก็บ `planned_weight` และ `cumulative_percent` ใน `progress_plan_items`
+
+### Source of Truth
+
+`activities.weight` เป็น Source of Truth สำหรับน้ำหนักของ Activity
+
+### Calculation Flow
+
+Activity.weight
+→ ProgressPlanItem.planned_percent
+→ ProgressCalculationService
+→ Planned Weighted Progress
+→ Cumulative Planned Progress
+→ Planned S-Curve
+
+### Database Design
+
+`progress_plan_items` จะเก็บเฉพาะข้อมูลต้นทางที่จำเป็นต่อการคำนวณ:
+
+- progress_plan_id
+- activity_id
+- plan_date
+- planned_percent
+
+ไม่จัดเก็บค่าที่สามารถคำนวณซ้ำได้จากข้อมูลต้นทาง:
+
+- planned_weight
+- cumulative_percent
+
+### Rationale
+
+1. ลดข้อมูลซ้ำ
+2. ป้องกัน Activity Weight และ Planned Weight ไม่ตรงกัน
+3. ป้องกันการกรอก Cumulative Progress ไม่ถูกต้อง
+4. ให้มี Single Source of Calculation
+5. เหมาะสมกับ NG9 V1 ที่ต้องการโครงสร้างไม่ซับซ้อน
+6. สามารถตรวจสอบย้อนกลับได้จาก Activity Weight และ Progress Plan Item
+
+### Implementation Impact
+
+ต้องปรับ:
+
+- Progress Plan Item Migration
+- ProgressPlanItem Model
+- ProgressPlanItemRequest
+- ProgressPlanItemController
+- ProgressCalculationService
+
+และต้องตรวจสอบ Test ที่เกี่ยวข้องก่อน Commit
+
+**Approved Implementation Decision Date:** 2026-08-12
 # PD-005 — Codespaces Cost Control
 
 **Status:** LOCKED
