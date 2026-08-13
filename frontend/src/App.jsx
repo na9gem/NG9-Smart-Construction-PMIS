@@ -1,42 +1,66 @@
-import { useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
+import Projects from "./pages/Projects";
 import Dashboard from "./pages/Dashboard";
 
 function App() {
-  const [user, setUser] = useState(() => {
+  const user = (() => {
     const savedUser = localStorage.getItem("ng9_user");
 
     return savedUser ? JSON.parse(savedUser) : null;
-  });
-
-  const logout = () => {
-    localStorage.removeItem("ng9_token");
-    localStorage.removeItem("ng9_user");
-
-    setUser(null);
-  };
-
-  const handleLogin = (loggedInUser) => {
-    setUser(loggedInUser);
-  };
+  })();
 
   if (!user) {
-    return <Login onLogin={handleLogin} />;
+    return <Login onLogin={() => window.location.href = "/projects"} />;
   }
 
   return (
-    <div>
-      <div className="topbar">
-        <span>ผู้ใช้งาน: {user.name}</span>
+    <BrowserRouter>
+      <div>
+        <div className="topbar">
+          <span>ผู้ใช้งาน: {user.name}</span>
 
-        <button onClick={logout}>
-          Logout
-        </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem("ng9_token");
+              localStorage.removeItem("ng9_user");
+              window.location.href = "/login";
+            }}
+          >
+            Logout
+          </button>
+        </div>
+
+        <Routes>
+          <Route
+            path="/"
+            element={<Navigate to="/projects" replace />}
+          />
+
+          <Route
+            path="/login"
+            element={<Login onLogin={() => window.location.href = "/projects"} />}
+          />
+
+          <Route
+            path="/projects"
+            element={<Projects />}
+          />
+
+          <Route
+            path="/projects/:projectId/dashboard"
+            element={<Dashboard />}
+          />
+
+          <Route
+            path="*"
+            element={<Navigate to="/projects" replace />}
+          />
+        </Routes>
       </div>
-
-      <Dashboard />
-    </div>
+    </BrowserRouter>
   );
 }
 
 export default App;
+

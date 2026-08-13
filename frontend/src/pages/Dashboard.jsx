@@ -1,20 +1,29 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import api from "../api/api";
 import SCurveChart from "../components/SCurveChart";
 import ProgressReports from "../components/ProgressReports";
 
 function Dashboard() {
+  const { projectId } = useParams();
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadDashboard = async () => {
+const loadDashboard = async () => {
+    if (!projectId) {
+      setError("ไม่พบรหัสโครงการ");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
 
       const response = await api.get(
-        "/dashboard/projects/3/s-curve"
+        `/dashboard/projects/${projectId}/s-curve`
       );
 
       setData(response.data.data);
@@ -30,10 +39,9 @@ function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
+useEffect(() => {
+  loadDashboard();
+}, [projectId]);
   if (loading) {
     return <p>กำลังโหลด Dashboard...</p>;
   }
