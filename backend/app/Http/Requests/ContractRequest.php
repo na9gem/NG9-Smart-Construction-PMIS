@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ContractRequest extends FormRequest
 {
@@ -12,7 +13,7 @@ class ContractRequest extends FormRequest
      */
     public function authorize(): bool
     {
-       return true;
+        return true;
     }
 
     /**
@@ -23,8 +24,14 @@ class ContractRequest extends FormRequest
     public function rules(): array
     {
         return [
-           'project_id' => 'required|exists:projects,id',
-           'contract_no' => 'required|string|max:100',
+            'project_id' => [
+                'required',
+                'exists:projects,id',
+                Rule::unique('contracts', 'project_id')
+                    ->ignore($this->route('contract')),
+            ],
+
+            'contract_no' => 'required|string|max:100',
 
             'contract_date' => 'required|date',
 
@@ -34,11 +41,13 @@ class ContractRequest extends FormRequest
             'start_date' => 'required|date',
 
             'finish_date' => 'required|date',
+
             'performance_bond' => 'nullable|numeric|min:0',
 
             'retention_percent' => 'nullable|numeric|min:0|max:100',
 
             'penalty_per_day' => 'nullable|numeric|min:0',
+
             'extended_finish_date' => 'nullable|date',
 
             'procurement_method' => 'nullable|string|max:100',

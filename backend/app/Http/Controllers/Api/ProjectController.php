@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectRequest;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
@@ -27,8 +28,11 @@ class ProjectController extends Controller
      * เพิ่มโครงการ
      */
     public function store(ProjectRequest $request): JsonResponse
-    {
-        $project = Project::create($request->validated());
+{
+    $project = Project::create([
+        ...$request->validated(),
+        'created_by' => Auth::id(),
+    ]);
 
         return response()->json([
             'success' => true,

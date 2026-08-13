@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import Projects from "./pages/Projects";
+import ProjectForm from "./pages/ProjectForm";
 import Dashboard from "./pages/Dashboard";
 
 function App() {
@@ -47,7 +48,11 @@ function App() {
             element={<Projects />}
           />
 
-          <Route
+         <Route
+            path="/projects/new"
+            element={<ProjectForm />}
+          />
+           <Route
             path="/projects/:projectId/dashboard"
             element={<Dashboard />}
           />
