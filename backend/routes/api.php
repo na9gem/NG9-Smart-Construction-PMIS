@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\InspectionController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
-
+use App\Http\Controllers\Api\MilestoneController;
 
 
 // Authentication
@@ -48,6 +48,8 @@ Route::post(
 )->middleware('permission:progress.manage');
 
 Route::apiResource('progress-plans', ProgressPlanController::class)
+    ->middleware('permission:progress.manage');
+Route::apiResource('milestones', MilestoneController::class)
     ->middleware('permission:progress.manage');
 Route::post(
     'progress-plans/{progressPlan}/items',
