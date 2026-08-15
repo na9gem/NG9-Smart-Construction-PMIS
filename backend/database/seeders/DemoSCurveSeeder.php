@@ -290,16 +290,13 @@ class DemoSCurveSeeder extends Seeder
                 'updated_at' => now(),
             ]);
 
-            /*
-             * ---------------------------------------------------------
-             * 8. BASELINE PROGRESS ITEMS
-             *
-             * planned_percent = incremental progress of each activity
-             * planned_weight = activity weight snapshot
-             * cumulative_percent = cumulative completion of activity
-             * ---------------------------------------------------------
-             */
-            $planDates = [
+                  /*
+ * 8. BASELINE PROGRESS ITEMS
+ *
+ * planned_percent = incremental progress of each activity
+ * Activity weight is derived from the Activity model.
+ */
+               $planDates = [
                 '2026-08-10',
                 '2026-09-10',
                 '2026-10-10',
@@ -316,32 +313,20 @@ class DemoSCurveSeeder extends Seeder
                 'ACT-006' => [0, 0, 0, 20, 80],
             ];
 
-            $weights = [
-                'ACT-001' => 10,
-                'ACT-002' => 10,
-                'ACT-003' => 20,
-                'ACT-004' => 20,
-                'ACT-005' => 15,
-                'ACT-006' => 25,
-            ];
 
             foreach ($progress as $activityCode => $increments) {
 
-                $cumulative = 0;
 
                 foreach ($increments as $index => $increment) {
 
-                    $cumulative += $increment;
 
                     DB::table('progress_plan_items')->insert([
-                        'progress_plan_id' => $planId,
-                        'activity_id' => $activityIds[$activityCode],
-                        'plan_date' => $planDates[$index],
-                        'planned_percent' => $increment,
-                        'planned_weight' => $weights[$activityCode],
-                        'cumulative_percent' => $cumulative,
-                        'created_at' => now(),
-                        'updated_at' => now(),
+                         'progress_plan_id' => $planId,
+'activity_id' => $activityIds[$activityCode],
+'plan_date' => $planDates[$index],
+'planned_percent' => $increment,
+'created_at' => now(),
+'updated_at' => now(),
                     ]);
                 }
             }
