@@ -56,11 +56,30 @@ Route::apiResource('work-packages', WorkPackageController::class)
     ->middleware('permission:progress.manage');
 Route::apiResource('activities', ActivityController::class)
     ->middleware('permission:progress.manage');
+Route::get(
+    'progress-plans/{progressPlan}/items',
+    [ProgressPlanItemController::class, 'index']
+)->middleware('permission:progress.manage');
+
 Route::post(
     'progress-plans/{progressPlan}/items',
     [ProgressPlanItemController::class, 'store']
 )->middleware('permission:progress.manage');
 
+Route::get(
+    'progress-plans/{progressPlan}/items/{progressPlanItem}',
+    [ProgressPlanItemController::class, 'show']
+)->middleware('permission:progress.manage');
+
+Route::put(
+    'progress-plans/{progressPlan}/items/{progressPlanItem}',
+    [ProgressPlanItemController::class, 'update']
+)->middleware('permission:progress.manage');
+
+Route::delete(
+    'progress-plans/{progressPlan}/items/{progressPlanItem}',
+    [ProgressPlanItemController::class, 'destroy']
+)->middleware('permission:progress.manage');
 
 Route::apiResource('inspections', InspectionController::class)
     ->middleware('permission:inspection.manage');

@@ -19,3 +19,5 @@ backend/bootstrap/cache/*
 
 # Temporary
 *.tmp
+# Database backups
+*.tar.gz

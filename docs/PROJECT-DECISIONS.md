@@ -206,21 +206,48 @@ NG9 V1 ใช้ระบบคำนวณ Planned S-Curve จาก Activity W
 
 ## Current Implementation Evidence
 
-ปัจจุบัน `ProgressCalculationService` คำนวณ Planned S-Curve จาก:
+ปัจจุบัน `ProgressCalculationService` คำนวณ Planned S-Curve โดยใช้:
 
-`planned_weight × planned_percent ÷ 100`
+`Activity.weight × planned_percent ÷ 100`
 
-และคำนวณ Cumulative Progress จากผลรวมตามวันที่
+โดย `Activity.weight` เป็น Source of Truth ของน้ำหนัก Activity
+และ `planned_percent` เป็น Planned Incremental Progress ของ Activity
+ในแต่ละ `plan_date`
 
-อย่างไรก็ตาม ปัจจุบัน `planned_weight` สามารถรับค่าจากผู้ใช้ และ `cumulative_percent` สามารถรับค่าได้จาก Request
+ระบบจะคำนวณ Planned Weighted Progress ของแต่ละรายการ
+จากนั้นรวมเป็น Daily Planned Progress และสะสมตามลำดับวันที่
+เพื่อสร้าง Cumulative Planned Progress และ Planned S-Curve
 
-ดังนั้นการทำให้ `Activity.weight` เป็น Source of Truth และให้ระบบคำนวณค่าดังกล่าว จะดำเนินการในขั้น Design/Development ถัดไป
+`ProgressPlanItemRequest` ไม่รับ `planned_weight`
+และ `cumulative_percent` จากผู้ใช้
+
+สำหรับ Validation ของ `planned_percent`
+ระบบตรวจสอบผลรวมของ Activity เดียวกันภายใน
+Progress Plan Version เดียวกัน และไม่อนุญาตให้เกิน 100%
+โดยใช้ทั้ง Create และ Update
 
 ## Implementation Status
 
 Decision ได้รับการอนุมัติแล้ว
 
-ยังไม่มีการแก้ไข Database หรือ Application Code ตาม Decision นี้
+PD-004 Derived Calculation ได้รับการ Implement แล้ว
+
+Implementation ครอบคลุม:
+
+- Activity.weight เป็น Source of Truth
+- Planned Weighted Progress
+- Cumulative Planned Progress
+- Planned S-Curve
+- Actual Progress จาก Approved Progress Report
+- Actual S-Curve
+- Validation ของ Planned Incremental Progress
+
+Validation ของ Progress Plan Item ผ่านการทดสอบ
+ทั้ง Create และ Update โดยกรณีที่ผลรวมเกิน 100%
+ระบบตอบ HTTP 422 และไม่เปลี่ยนแปลงข้อมูลเดิมใน Database
+
+Database ไม่จัดเก็บ `planned_weight`
+และ `cumulative_percent` ใน `progress_plan_items`
 ## Implementation Design Decision
 
 **Selected Option:** B — Derived Calculation
@@ -239,6 +266,32 @@ Activity.weight
 → Planned Weighted Progress
 → Cumulative Planned Progress
 → Planned S-Curve
+
+### Validation Rule — Planned Incremental Progress
+
+สำหรับ Activity เดียวกันภายใน Progress Plan Version เดียวกัน
+ผลรวมของ `planned_percent` จาก `ProgressPlanItem` ทุกแถว
+ต้องไม่เกิน 100%
+
+#### Business Rule
+
+1. ผลรวม `planned_percent` ของ Activity เดียวกันใน Progress Plan Version เดียวกันต้องไม่เกิน 100%
+2. Rule นี้ใช้กับการสร้าง (Create) และแก้ไข (Update) Progress Plan Item
+3. การตรวจสอบต้องพิจารณาเฉพาะรายการที่มี `activity_id` และ `progress_plan_id` เดียวกัน
+4. กรณี Update ต้องไม่นับค่าเดิมของรายการที่กำลังแก้ซ้ำ
+5. หากผลรวมหลังการ Create หรือ Update มากกว่า 100% ให้ระบบปฏิเสธรายการ
+6. การปฏิเสธใช้ HTTP `422 Unprocessable Entity`
+7. การลบ Progress Plan Item ไม่ต้องตรวจ Rule นี้
+8. `ProgressCalculationService` มีหน้าที่คำนวณ Progress และ S-Curve ไม่ใช่หน้าที่หลักในการรับผิดชอบ Validation
+9. Rule นี้มีวัตถุประสงค์เพื่อป้องกัน Planned Cumulative Progress เกิน 100% จากข้อมูลต้นทาง
+
+#### Validation Examples
+
+- `70 + 30 = 100%` → PASS
+- `70 + 20 = 90%` → PASS
+- `70 + 50 = 120%` → FAIL
+- `100%` → PASS
+- `100 + 1 = 101%` → FAIL
 
 ### Database Design
 
